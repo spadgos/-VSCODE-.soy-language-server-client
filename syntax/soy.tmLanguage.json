@@ -1,262 +1,443 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "soy",
-	"fileTypes": [
-		"soy"
-	],
-	"patterns": [
-		{
-			"include": "#soy"
-		},
-		{
-			"include": "#comments"
-		},
-		{
-			"include": "#html"
-		}
-	],
-	"repository": {
-		"soy": {
-			"patterns": [
-				{
-					"begin": "{",
-					"end": "}",
-					"beginCaptures": {
-						"0": {
-							"name": "support.variable"
-						}
-					},
-					"endCaptures": {
-						"0": {
-							"name": "support.variable"
-						}
-					},
-					"patterns": [
-						{
-							"name": "entity.name.tag",
-							"match": "\\b(and|case|default|elseif|else|fallbackmsg|false|foreach|for|ifempty|if|in|lb|let|literal|msg|nil|not|null|or|print|rb|sp|switch|true)\\b"
-						},
-						{
-							"match": "(@param\\??)\\s+([\\w\\d]+)\\s*:\\s*(?:([\\w\\d.]+)(?:<([\\w\\d.]+)>)?)?",
-							"captures": {
-								"1": {
-									"name": "entity.name.type"
-								},
-								"2": {
-									"name": "variable.parameter"
-								},
-								"3": {
-									"name": "support.function"
-								},
-								"4": {
-									"name": "support.function"
-								}
-							}
-						},
-						{
-							"match": "\\b(deltemplate|template|call|delcall|dynacall|namespace|delpackage|package)\\b(?:\\s+([\\w\\d.]+))?",
-							"captures": {
-								"1": {
-									"name": "entity.name.tag"
-								},
-								"2": {
-									"name": "variable.parameter"
-								}
-							}
-						},
-						{
-							"match": "\\b(param)(?:\\s+(\\w+)\\s*:?)?",
-							"captures": {
-								"1": {
-									"name": "entity.name.tag"
-								},
-								"2": {
-									"name": "entity.name.type"
-								}
-							}
-						},
-						{
-							"match": "\\b(kind|autoescape|allowemptydefault|variant|data)=",
-							"captures": {
-								"1": {
-									"name": "support.function"
-								}
-							}
-						},
-						{
-							"match": "\\b(alias)\\s+([\\w\\d.]*)(?:\\s+(as)\\s+([\\w\\d.]*))?",
-							"captures": {
-								"1": {
-									"name": "entity.name.type"
-								},
-								"2": {
-									"name": "variable.parameter"
-								},
-								"3": {
-									"name": "entity.name.type"
-								},
-								"4": {
-									"name": "variable.parameter"
-								}
-							}
-						},
-						{
-							"name": "variable.parameter",
-							"match": "\\$[\\w\\d.?\\[\\]]+"
-						},
-						{
-							"name": "keyword.control",
-							"match": "\\b(isFirst|isLast|index|quoteKeysIfJs|i18n(JS)?|setClientData|injectedData)\\b"
-						},
-						{
-							"comment": "Built-in functions. See https://github.com/google/closure-templates/tree/master/java/src/com/google/template/soy/basicfunctions",
-							"name": "keyword.control",
-							"match": "\\b(augmentMap|ceiling|concatLists|floor|htmlToText|isNonnull|isNull|join|keys|legacyObjectMapToMap|length|listContains|mapKeys|mapToLegacyObjectMap|max|min|parseFloat|parseInt|randomInt|range|round|sqrt|strContains|strIndexOf|strLen|strSmsUriToUri|strSub|strToAsciiLowerCase|strToAsciiUpperCase)\\b"
-						},
-						{
-							"name": "support.function",
-							"match": "\\bnoAutoescape\\b"
-						},
-						{
-							"match": "\\b(truncate)\\s*(:)\\s*(\\d+)\\b",
-							"captures": {
-								"1": {
-									"name": "support.function"
-								},
-								"2": {
-									"name": "support.variable"
-								},
-								"3": {
-									"name": "constant.character.escape"
-								}
-							}
-						},
-						{
-							"include": "#strings"
-						},
-						{
-							"include": "#comments"
-						}
-					]
-				}
-			]
-		},
-		"comments": {
-			"patterns": [
-				{
-					"name": "comment",
-					"match": "//.*"
-				},
-				{
-					"name": "comment",
-					"begin": "/\\*\\*",
-					"end": "\\*/",
-					"patterns": [
-						{
-							"match": "(@js|@css|@dependsOn) .*",
-							"captures": {
-								"1": {
-									"name": "entity.name.type"
-								}
-							}
-						},
-						{
-							"match": "(@param\\??)\\s+([\\w\\d]+) ?(.*)?",
-							"captures": {
-								"1": {
-									"name": "entity.name.type"
-								},
-								"2": {
-									"name": "variable.parameter"
-								},
-								"3": {
-									"name": "comment"
-								}
-							}
-						},
-						{
-							"name": "keyword.control",
-							"match": "(@client|@layout)"
-						}
-					]
-				},
-				{
-					"name": "comment",
-					"begin": "/\\*",
-					"end": "\\*/"
-				}
-			]
-		},
-		"html": {
-			"name": "support.function",
-			"begin": "</?\\w+",
-			"end": "/?>",
-			"beginCaptures": {
-				"0": {
-					"name": "entity.name.tag"
-				}
-			},
-			"endCaptures": {
-				"0": {
-					"name": "entity.name.tag"
-				}
-			},
-			"patterns": [
-				{
-					"include": "#soy"
-				},
-				{
-					"include": "#comments"
-				},
-				{
-					"include": "#strings"
-				}
-			]
-		},
-		"strings": {
-			"patterns": [
-				{
-					"name": "string.quoted.double",
-					"begin": "\"",
-					"end": "\"",
-					"patterns": [
-						{
-							"include": "#escaped-character"
-						},
-						{
-							"include": "#soy"
-						},
-						{
-							"include": "#html"
-						}
-					]
-				},
-				{
-					"name": "string.quoted.single",
-					"begin": "'",
-					"end": "'",
-					"patterns": [
-						{
-							"include": "#escaped-character"
-						},
-						{
-							"include": "#soy"
-						},
-						{
-							"include": "#html"
-						}
-					]
-				}
-			]
-		},
-		"escaped-character": {
-			"patterns": [
-				{
-					"name": "constant.character.escape",
-					"match": "\\\\."
-				}
-			]
-		}
-	},
-	"scopeName": "source.soy"
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "soy",
+  "fileTypes": [
+    "soy"
+  ],
+  "patterns": [
+    {
+      "include": "#soy"
+    },
+    {
+      "include": "#comments"
+    }
+  ],
+  "repository": {
+    "soy": {
+      "patterns": [
+        {
+          "begin": "{~",
+          "end": "~}",
+          "name": "meta.embedded.block.html",
+          "patterns": [
+            {
+              "include": "text.html.basic"
+            }
+          ]
+        },
+        {
+          "begin": "{",
+          "end": "}",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.expression.begin.soy"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.expression.end.soy"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#file-declarations"
+            },
+            {
+              "comment": "move this to be only inside a template",
+              "include": "#template-params"
+            },
+            {
+              "name": "entity.name.tag",
+              "match": "\\b(and|case|default|elseif|else|fallbackmsg|false|foreach|for|ifempty|if|in|lb|let|literal|msg|nil|not|null|or|print|rb|sp|switch|true)\\b"
+            },
+            {
+              "match": "\\b(deltemplate|template|element|call|delcall|dynacall)\\b(?:\\s+([\\w\\d.]+))?",
+              "captures": {
+                "1": {
+                  "name": "entity.name.tag"
+                },
+                "2": {
+                  "name": "variable.parameter"
+                }
+              }
+            },
+            {
+              "match": "\\b(kind|autoescape|allowemptydefault|variant|data)=",
+              "captures": {
+                "1": {
+                  "name": "support.function"
+                }
+              }
+            },
+            {
+              "match": "\\b(alias)\\s+([\\w\\d.]*)(?:\\s+(as)\\s+([\\w\\d.]*))?",
+              "captures": {
+                "1": {
+                  "name": "entity.name.type"
+                },
+                "2": {
+                  "name": "variable.parameter"
+                },
+                "3": {
+                  "name": "entity.name.type"
+                },
+                "4": {
+                  "name": "variable.parameter"
+                }
+              }
+            },
+            {
+              "name": "variable.parameter",
+              "match": "\\$[\\w\\d.?\\[\\]]+"
+            },
+            {
+              "name": "keyword.control",
+              "match": "\\b(isFirst|isLast|index|quoteKeysIfJs|i18n(JS)?|setClientData|injectedData)\\b"
+            },
+            {
+              "comment": "Built-in functions. See https://github.com/google/closure-templates/tree/master/java/src/com/google/template/soy/basicfunctions",
+              "name": "keyword.control",
+              "match": "\\b(augmentMap|ceiling|concatLists|floor|htmlToText|isNonnull|isNull|join|keys|legacyObjectMapToMap|length|listContains|mapKeys|mapToLegacyObjectMap|max|min|parseFloat|parseInt|randomInt|range|round|sqrt|strContains|strIndexOf|strLen|strSmsUriToUri|strSub|strToAsciiLowerCase|strToAsciiUpperCase)\\b"
+            },
+            {
+              "name": "support.function",
+              "match": "\\bnoAutoescape\\b"
+            },
+            {
+              "match": "\\b(truncate)\\s*(:)\\s*(\\d+)\\b",
+              "captures": {
+                "1": {
+                  "name": "support.function"
+                },
+                "2": {
+                  "name": "support.variable"
+                },
+                "3": {
+                  "name": "constant.character.escape"
+                }
+              }
+            },
+            {
+              "include": "#strings"
+            },
+            {
+              "include": "#comments"
+            }
+          ]
+        }
+      ]
+    },
+    "template-params": {
+      "comment": "@param, @inject and @state.",
+      "name": "meta.parameter.soy",
+      "begin": "(@(?:param\\??|inject|state))\\s+([\\w]+)(?=\\s*:)",
+      "end": "(?=})",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.param.soy"
+        },
+        "2": {
+          "name": "variable.parameter.soy"
+        }
+      },
+      "patterns": [
+        {
+          "comment": "{@param foo := 3}",
+          "begin": "=",
+          "end": "(?=})",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.separator.key-value.soy"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#literals"
+            }
+          ]
+        },
+        {
+          "comment": "{@param foo: Type|AnotherType}",
+          "begin": ":\\s*",
+          "end": "(?=\\s*(?:=|}))",
+          "patterns": [
+            {
+              "include": "#types"
+            }
+          ]
+        }
+      ]
+    },
+    "literals": {
+      "patterns": [
+        {
+          "include": "#strings"
+        },
+        {
+          "match": "(true|false|null)",
+          "captures": {
+            "1": {
+              "name": "constant.language.$1.soy"
+            }
+          }
+        },
+        {
+          "include": "#numbers"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "match": "(?<=\\s|\\|)\\w+(?:\\.\\w+)*(?:<\\w+(?:[\\.<>\\w]+)*>)?",
+          "name": "entity.name.type.soy"
+        },
+        {
+          "match": "\\|",
+          "name": "keyword.operator.type.soy"
+        }
+      ]
+    },
+    "attribute-interior": {
+      "patterns": [
+        {
+          "begin": "=",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.separator.key-value.soy"
+            }
+          },
+          "end": "(?<=[^\\s=])(?!\\s*=)|(?=/?>)",
+          "patterns": [
+            {
+              "begin": "\"",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.definition.string.begin.soy"
+                }
+              },
+              "end": "\"",
+              "endCaptures": {
+                "0": {
+                  "name": "punctuation.definition.string.end.soy"
+                }
+              },
+              "name": "string.quoted.double.soy"
+            },
+            {
+              "begin": "'",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.definition.string.begin.soy"
+                }
+              },
+              "end": "'",
+              "endCaptures": {
+                "0": {
+                  "name": "punctuation.definition.string.end.soy"
+                }
+              },
+              "name": "string.quoted.single.soy"
+            },
+            {
+              "match": "=",
+              "name": "invalid.illegal.unexpected-equals-sign.soy"
+            }
+          ]
+        }
+      ]
+    },
+    "file-declarations": {
+      "patterns": [
+        {
+          "name": "meta.namespace.soy",
+          "begin": "(?<=\\{)(namespace)\\s+([\\w\\.-]+)",
+          "end": "(?=})",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.namespace.soy"
+            },
+            "2": {
+              "name": "variable.parameter.soy"
+            }
+          },
+          "patterns": [
+            {
+              "begin": "(requirecss|cssbase)(?![\\w:-])",
+              "beginCaptures": {
+                "0": {
+                  "name": "entity.other.attribute-name.soy"
+                }
+              },
+              "end": "(?=\\s*+[^=\\s])",
+              "name": "meta.attribute.$1.soy",
+              "patterns": [
+                {
+                  "include": "#attribute-interior"
+                }
+              ]
+            },
+            {
+              "match": "[^\\s>]+",
+              "name": "invalid.illegal.character-not-allowed-here.soy"
+            }
+          ]
+        },
+        {
+          "name": "meta.alias.soy",
+          "begin": "(?<=\\{)(alias)\\s+([\\w\\.-]+)",
+          "end": "(?=})",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.alias.soy"
+            },
+            "2": {
+              "name": "variable.parameter.soy"
+            }
+          },
+          "patterns": [
+            {
+              "match": "\\b(as)\\s+(\\w+)",
+              "captures": {
+                "1": {
+                  "name": "keyword.control.as.soy"
+                },
+                "2": {
+                  "name": "variable.name.soy"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "meta.delpackage.soy",
+          "match": "(?<=\\{)(delpackage)\\s+([\\w\\.-]+)(?=\\s*\\})",
+          "captures": {
+            "1": {
+              "name": "keyword.control.delpackage.soy"
+            },
+            "2": {
+              "name": "variable.parameter.soy"
+            }
+          }
+        }
+      ]
+    },
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.soy",
+          "match": "//.*"
+        },
+        {
+          "name": "comment.soy",
+          "begin": "/\\*\\*",
+          "end": "\\*/",
+          "patterns": [
+            {
+              "match": "(@js|@css|@dependsOn) .*",
+              "captures": {
+                "1": {
+                  "name": "entity.name.type.soy"
+                }
+              }
+            },
+            {
+              "match": "(@param\\??)\\s+([\\w\\d]+) ?(.*)?",
+              "captures": {
+                "1": {
+                  "name": "entity.name.type.soy"
+                },
+                "2": {
+                  "name": "variable.parameter.soy"
+                },
+                "3": {
+                  "name": "comment.soy"
+                }
+              }
+            },
+            {
+              "name": "keyword.control",
+              "match": "(@client|@layout)"
+            }
+          ]
+        },
+        {
+          "name": "comment.soy",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "match": "(?:(-?0x[0-9a-fA-F]*)|(-?[1-9][0-9]*(?:\\.[0-9]+)?(?:e-?[1-9][0-9]*)?))\\b",
+          "captures": {
+            "1": {
+              "name": "constant.numeric.hex.soy"
+            },
+            "2": {
+              "name": "constant.numeric.decimal.soy"
+            }
+          }
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.soy",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "include": "#escaped-character"
+            },
+            {
+              "include": "#soy"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.soy",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "include": "#escaped-character"
+            },
+            {
+              "include": "#soy"
+            }
+          ]
+        }
+      ]
+    },
+    "escaped-character": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.soy",
+          "match": "\\\\[\\\\'\"nrtbf]"
+        },
+        {
+          "name": "constant.character.escape.unicode.soy",
+          "match": "\\\\u[a-fA-F0-9]{4}"
+        },
+        {
+          "name": "constant.character.escape.hex.soy",
+          "match": "\\\\x[a-fA-F0-9]{2}"
+        },
+        {
+          "name": "constant.character.escape.octal.soy",
+          "match": "\\\\[0-7]{2,3}"
+        },
+        {
+          "name": "invalid.illegal.unknown-escape.soy",
+          "match": "\\\\."
+        }
+      ]
+    }
+  },
+  "scopeName": "source.soy"
 }
