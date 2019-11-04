@@ -3,28 +3,8 @@
   "name": "soy",
   "fileTypes": ["soy"],
   "patterns": [
-    {
-      "include": "#template"
-    },
-    {
-      "begin": "{",
-      "end": "}",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.definition.expression.begin.soy"
-        }
-      },
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.definition.expression.end.soy"
-        }
-      },
-      "patterns": [
-        {
-          "include": "#file-declarations"
-        }
-      ]
-    },
+    { "include": "#template" },
+    { "include": "#file-declarations" },
     {
       "include": "#comments"
     },
@@ -51,12 +31,12 @@
           "end": "}",
           "beginCaptures": {
             "0": {
-              "name": "punctuation.definition.expression.begin.soy"
+              "name": "punctuation.definition.tag.begin.soy"
             }
           },
           "endCaptures": {
             "0": {
-              "name": "punctuation.definition.expression.end.soy"
+              "name": "punctuation.definition.tag.end.soy"
             }
           },
           "patterns": [
@@ -186,24 +166,6 @@
         }
       ]
     },
-    "literals": {
-      "patterns": [
-        {
-          "include": "#strings"
-        },
-        {
-          "match": "(true|false|null)",
-          "captures": {
-            "1": {
-              "name": "constant.language.$1.soy"
-            }
-          }
-        },
-        {
-          "include": "#numbers"
-        }
-      ]
-    },
     "types": {
       "patterns": [
         {
@@ -221,39 +183,29 @@
         {
           "begin": "=",
           "beginCaptures": {
-            "0": {
-              "name": "punctuation.separator.key-value.soy"
-            }
+            "0": { "name": "punctuation.separator.key-value.soy" }
           },
-          "end": "(?<=[^\\s=])(?!\\s*=)|(?=/?>)",
+          "end": "(?<=[^\\s=])(?!\\s*=)|(?=\\})",
           "patterns": [
             {
               "begin": "\"",
               "beginCaptures": {
-                "0": {
-                  "name": "punctuation.definition.string.begin.soy"
-                }
+                "0": { "name": "punctuation.definition.string.begin.soy" }
               },
               "end": "\"",
               "endCaptures": {
-                "0": {
-                  "name": "punctuation.definition.string.end.soy"
-                }
+                "0": { "name": "punctuation.definition.string.end.soy" }
               },
               "name": "string.quoted.double.soy"
             },
             {
               "begin": "'",
               "beginCaptures": {
-                "0": {
-                  "name": "punctuation.definition.string.begin.soy"
-                }
+                "0": { "name": "punctuation.definition.string.begin.soy" }
               },
               "end": "'",
               "endCaptures": {
-                "0": {
-                  "name": "punctuation.definition.string.end.soy"
-                }
+                "0": { "name": "punctuation.definition.string.end.soy" }
               },
               "name": "string.quoted.single.soy"
             },
@@ -266,18 +218,19 @@
       ]
     },
     "file-declarations": {
+      "comment": "The namespace, alias and delpackage declarations",
       "patterns": [
         {
           "name": "meta.namespace.soy",
-          "begin": "(?<=\\{)(namespace)\\s+([\\w\\.-]+)",
-          "end": "(?=})",
+          "begin": "(\\{)(namespace)\\s+(\\w+(?:\\.\\w+)*)",
+          "end": "\\}",
           "beginCaptures": {
-            "1": {
-              "name": "keyword.control.namespace.soy"
-            },
-            "2": {
-              "name": "variable.parameter.soy"
-            }
+            "1": { "name": "punctuation.definition.tag.begin.soy" },
+            "2": { "name": "keyword.control.namespace.soy" },
+            "3": { "name": "variable.parameter.soy" }
+          },
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.tag.end.soy" }
           },
           "patterns": [
             { "include": "#requirecss-cssbase" },
@@ -286,41 +239,57 @@
         },
         {
           "name": "meta.alias.soy",
-          "begin": "(?<=\\{)(alias)\\s+([\\w\\.-]+)",
-          "end": "(?=})",
+          "begin": "(\\{)(alias)\\b",
+          "end": "\\}",
           "beginCaptures": {
-            "1": {
-              "name": "keyword.control.alias.soy"
-            },
-            "2": {
-              "name": "variable.parameter.soy"
-            }
+            "1": { "name": "punctuation.definition.tag.begin.soy" },
+            "2": { "name": "keyword.control.alias.soy" }
+          },
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.tag.end.soy" }
           },
           "patterns": [
             {
-              "match": "\\b(as)\\s+(\\w+)",
+              "match": "((?:\\w+\\.)+(\\w+))(?=\\s*\\})",
               "captures": {
-                "1": {
-                  "name": "keyword.control.as.soy"
-                },
-                "2": {
-                  "name": "variable.name.soy"
-                }
+                "1": { "name": "variable.name.soy" },
+                "2": { "name": "variable.other.constant.soy" }
+              }
+            },
+            {
+              "match": "((?:\\w+\\.)+\\w+)",
+              "captures": {
+                "1": { "name": "variable.name.soy" }
+              }
+            },
+            {
+              "match": "(as)\\s+(\\w+)",
+              "captures": {
+                "1": { "name": "keyword.control.as.soy" },
+                "2": { "name": "variable.other.constant.soy" }
               }
             }
           ]
         },
         {
           "name": "meta.delpackage.soy",
-          "match": "(?<=\\{)(delpackage)\\s+([\\w\\.-]+)(?=\\s*\\})",
-          "captures": {
-            "1": {
-              "name": "keyword.control.delpackage.soy"
-            },
-            "2": {
-              "name": "variable.parameter.soy"
+          "begin": "(\\{)(delpackage)\\b",
+          "end": "\\}",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.tag.begin.soy" },
+            "2": { "name": "keyword.control.delpackage.soy" }
+          },
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.tag.end.soy" }
+          },
+          "patterns": [
+            {
+              "match": "\\w+(?:\\.\\w+)*",
+              "captures": {
+                "0": { "name": "variable.parameter.soy" }
+              }
             }
-          }
+          ]
         }
       ]
     },
@@ -331,12 +300,12 @@
           "end": "(\\{/)((?:del)?template)(\\})",
           "name": "meta.template.soy",
           "beginCaptures": {
-            "1": { "name": "punctuation.definition.expression.begin.soy" }
+            "1": { "name": "punctuation.definition.tag.begin.soy" }
           },
           "endCaptures": {
-            "1": { "name": "punctuation.definition.expression.begin.soy" },
+            "1": { "name": "punctuation.definition.tag.begin.soy" },
             "2": { "name": "storage.type.template.soy" },
-            "3": { "name": "punctuation.definition.expression.end.soy" }
+            "3": { "name": "punctuation.definition.tag.end.soy" }
           },
           "patterns": [
             {
@@ -349,7 +318,7 @@
                 "4": { "name": "entity.name.type.deltemplate.soy" }
               },
               "endCaptures": {
-                "0": { "name": "punctuation.definition.expression.end.soy" }
+                "0": { "name": "punctuation.definition.tag.end.soy" }
               },
               "patterns": [
                 {
@@ -475,6 +444,7 @@
       ]
     },
     "requirecss-cssbase": {
+      "comment": "the `requirecss` and `cssbase` attributes",
       "begin": "(requirecss|cssbase)(?![\\w:-])",
       "end": "(?=\\s*+[^=\\s])",
       "name": "meta.attribute.$1.soy",
@@ -495,6 +465,7 @@
       ]
     },
     "attribute-value-namespace": {
+      "comment": "An attribute value which is a dotted namespace",
       "patterns": [
         {
           "begin": "'",
@@ -527,6 +498,7 @@
       ]
     },
     "attribute-value-boolean": {
+      "comment": "An attribute value which is a string of true or false",
       "patterns": [
         {
           "begin": "'",
@@ -601,6 +573,18 @@
           "name": "comment.soy",
           "begin": "/\\*",
           "end": "\\*/"
+        }
+      ]
+    },
+    "literals": {
+      "patterns": [
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        {
+          "match": "(true|false|null)",
+          "captures": {
+            "1": { "name": "constant.language.$1.soy" }
+          }
         }
       ]
     },
