@@ -1,15 +1,36 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "soy",
-  "fileTypes": [
-    "soy"
-  ],
+  "fileTypes": ["soy"],
   "patterns": [
     {
-      "include": "#soy"
+      "include": "#template"
+    },
+    {
+      "begin": "{",
+      "end": "}",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.expression.begin.soy"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.expression.end.soy"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#file-declarations"
+        }
+      ]
     },
     {
       "include": "#comments"
+    },
+    {
+      "match": "\\S+",
+      "name": "invalid.illegal.soy"
     }
   ],
   "repository": {
@@ -39,9 +60,6 @@
             }
           },
           "patterns": [
-            {
-              "include": "#file-declarations"
-            },
             {
               "comment": "move this to be only inside a template",
               "include": "#template-params"
@@ -262,25 +280,8 @@
             }
           },
           "patterns": [
-            {
-              "begin": "(requirecss|cssbase)(?![\\w:-])",
-              "beginCaptures": {
-                "0": {
-                  "name": "entity.other.attribute-name.soy"
-                }
-              },
-              "end": "(?=\\s*+[^=\\s])",
-              "name": "meta.attribute.$1.soy",
-              "patterns": [
-                {
-                  "include": "#attribute-interior"
-                }
-              ]
-            },
-            {
-              "match": "[^\\s>]+",
-              "name": "invalid.illegal.character-not-allowed-here.soy"
-            }
+            { "include": "#requirecss-cssbase" },
+            { "include": "#invalid-attributes" }
           ]
         },
         {
@@ -320,6 +321,240 @@
               "name": "variable.parameter.soy"
             }
           }
+        }
+      ]
+    },
+    "template": {
+      "patterns": [
+        {
+          "begin": "(\\{)(?=(?:del)?template\\b)",
+          "end": "(\\{/)((?:del)?template)(\\})",
+          "name": "meta.template.soy",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.expression.begin.soy" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.expression.begin.soy" },
+            "2": { "name": "storage.type.template.soy" },
+            "3": { "name": "punctuation.definition.expression.end.soy" }
+          },
+          "patterns": [
+            {
+              "begin": "\\b(?:(template)\\s+(\\.\\w+)|(deltemplate)\\s+(\\w+(?:\\.\\w+)+)(?=\\s|$))",
+              "end": "}",
+              "beginCaptures": {
+                "1": { "name": "storage.type.template.soy" },
+                "2": { "name": "entity.name.type.template.soy" },
+                "3": { "name": "storage.type.deltemplate.soy" },
+                "4": { "name": "entity.name.type.deltemplate.soy" }
+              },
+              "endCaptures": {
+                "0": { "name": "punctuation.definition.expression.end.soy" }
+              },
+              "patterns": [
+                {
+                  "begin": "visibility\\b",
+                  "end": "(?=\\s*+[^=\\s])",
+                  "name": "meta.attribute.$0.soy",
+                  "beginCaptures": {
+                    "0": { "name": "entity.other.attribute-name.soy" }
+                  },
+                  "patterns": [
+                    {
+                      "begin": "=",
+                      "end": "(?<=[^\\s=])(?!\\s*=)|(?=/?\\})",
+                      "beginCaptures": {
+                        "0": { "name": "punctuation.separator.key-value.soy" }
+                      },
+                      "patterns": [
+                        {
+                          "begin": "'",
+                          "end": "'",
+                          "name": "string.quoted.single.soy",
+                          "patterns": [
+                            {
+                              "match": "(?<=')(public|private)(?=')"
+                            },
+                            {
+                              "match": "[^']+",
+                              "name": "invalid.illegal.soy"
+                            }
+                          ]
+                        },
+                        {
+                          "begin": "\"",
+                          "end": "\"",
+                          "name": "string.quoted.double.soy",
+                          "patterns": [
+                            {
+                              "match": "(?<=\")(public|private)(?=\")"
+                            },
+                            {
+                              "match": "[^\"]+",
+                              "name": "invalid.illegal.soy"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "begin": "kind\\b",
+                  "end": "(?=\\s*+[^=\\s])",
+                  "name": "meta.attribute.$0.soy",
+                  "beginCaptures": {
+                    "0": { "name": "entity.other.attribute-name.soy" }
+                  },
+                  "patterns": [
+                    {
+                      "begin": "=",
+                      "end": "(?<=[^\\s=])(?!\\s*=)|(?=/?\\})",
+                      "beginCaptures": {
+                        "0": { "name": "punctuation.separator.key-value.soy" }
+                      },
+                      "patterns": [
+                        {
+                          "begin": "'",
+                          "end": "'",
+                          "name": "string.quoted.single.soy",
+                          "patterns": [
+                            {
+                              "match": "(?<=')(html|text|attributes|uri|css|js|trusted_resource_uri)(?=')"
+                            },
+                            {
+                              "match": "[^']+",
+                              "name": "invalid.illegal.soy"
+                            }
+                          ]
+                        },
+                        {
+                          "begin": "\"",
+                          "end": "\"",
+                          "name": "string.quoted.double.soy",
+                          "patterns": [
+                            {
+                              "match": "(?<=\")(html|text|attributes|uri|css|js|trusted_resource_uri)(?=\")"
+                            },
+                            {
+                              "match": "[^\"]+",
+                              "name": "invalid.illegal.soy"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                { "include": "#requirecss-cssbase" },
+                {
+                  "begin": "stricthtml\\b",
+                  "end": "(?=\\s*+[^=\\s])",
+                  "name": "meta.attribute.$1.soy",
+                  "beginCaptures": {
+                    "0": { "name": "entity.other.attribute-name" }
+                  },
+                  "patterns": [
+                    {
+                      "begin": "=",
+                      "end": "(?<=[^\\s=])(?!\\s*=)|(?=/?\\})",
+                      "beginCaptures": {
+                        "0": { "name": "punctuation.separator.key-value.soy" }
+                      },
+                      "patterns": [
+                        { "include": "#attribute-value-boolean" }
+                      ]
+                    }
+                  ]
+                },
+                { "include": "#invalid-attributes" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "requirecss-cssbase": {
+      "begin": "(requirecss|cssbase)(?![\\w:-])",
+      "end": "(?=\\s*+[^=\\s])",
+      "name": "meta.attribute.$1.soy",
+      "beginCaptures": {
+        "0": { "name": "entity.other.attribute-name.soy" }
+      },
+      "patterns": [
+        {
+          "begin": "=",
+          "end": "(?<=[^\\s=])(?!\\s*=)|(?=/?\\})",
+          "beginCaptures": {
+            "0": { "name": "punctuation.separator.key-value.soy" }
+          },
+          "patterns": [
+            { "include": "#attribute-value-namespace" }
+          ]
+        }
+      ]
+    },
+    "attribute-value-namespace": {
+      "patterns": [
+        {
+          "begin": "'",
+          "end": "'",
+          "name": "string.quoted.single.soy",
+          "patterns": [
+            {
+              "match": "(?<=')\\w+(\\.\\w+)*(?=')"
+            },
+            {
+              "match": "[^']+",
+              "name": "invalid.illegal.soy"
+            }
+          ]
+        },
+        {
+          "begin": "\"",
+          "end": "\"",
+          "name": "string.quoted.double.soy",
+          "patterns": [
+            {
+              "match": "(?<=\")\\w+(\\.\\w+)*(?=\")"
+            },
+            {
+              "match": "[^\"]+",
+              "name": "invalid.illegal.soy"
+            }
+          ]
+        }
+      ]
+    },
+    "attribute-value-boolean": {
+      "patterns": [
+        {
+          "begin": "'",
+          "end": "'",
+          "name": "string.quoted.single.soy",
+          "patterns": [
+            {
+              "match": "(?<=')(?:true|false)(?=')"
+            },
+            {
+              "match": "[^']+",
+              "name": "invalid.illegal.soy"
+            }
+          ]
+        },
+        {
+          "begin": "\"",
+          "end": "\"",
+          "name": "string.quoted.double.soy",
+          "patterns": [
+            {
+              "match": "(?<=\")(?:true|false)(?=\")"
+            },
+            {
+              "match": "[^\"]+",
+              "name": "invalid.illegal.soy"
+            }
+          ]
         }
       ]
     },
@@ -437,6 +672,11 @@
           "match": "\\\\."
         }
       ]
+    },
+    "invalid-attributes": {
+      "comment": "Include inside a tag when the list of allowed attributes is exhausted",
+      "match": "[^\\s}]+",
+      "name": "invalid.illegal.character-not-allowed-here.soy"
     }
   },
   "scopeName": "source.soy"
