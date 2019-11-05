@@ -5,9 +5,7 @@
   "patterns": [
     { "include": "#template" },
     { "include": "#file-declarations" },
-    {
-      "include": "#comments"
-    },
+    { "include": "#comments" },
     {
       "match": "\\S+",
       "name": "invalid.illegal.soy"
@@ -128,30 +126,26 @@
     "template-params": {
       "comment": "@param, @inject and @state.",
       "name": "meta.parameter.soy",
-      "begin": "(@(?:param\\??|inject|state))\\s+([\\w]+)(?=\\s*:)",
-      "end": "(?=})",
+      "begin": "(\\{)(@(?:param\\??|inject|state))\\s+([\\w]+)(?=\\s*:)",
+      "end": "(\\})",
       "beginCaptures": {
-        "1": {
-          "name": "keyword.control.param.soy"
-        },
-        "2": {
-          "name": "variable.parameter.soy"
-        }
+        "1": { "name": "punctuation.definition.tag.begin.soy" },
+        "2": { "name": "keyword.control.param.soy" },
+        "3": { "name": "variable.parameter.soy" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.soy" }
       },
       "patterns": [
         {
           "comment": "{@param foo := 3}",
           "begin": "=",
-          "end": "(?=})",
+          "end": "(?<=[^\\s=])(?!\\s*=)|(?=\\})",
           "beginCaptures": {
-            "0": {
-              "name": "punctuation.separator.key-value.soy"
-            }
+            "0": { "name": "punctuation.separator.key-value.soy" }
           },
           "patterns": [
-            {
-              "include": "#literals"
-            }
+            { "include": "#value-expressions" }
           ]
         },
         {
@@ -159,11 +153,10 @@
           "begin": ":\\s*",
           "end": "(?=\\s*(?:=|}))",
           "patterns": [
-            {
-              "include": "#types"
-            }
+            { "include": "#types" }
           ]
-        }
+        },
+        { "include": "#invalid-attributes" }
       ]
     },
     "types": {
@@ -309,7 +302,7 @@
           },
           "patterns": [
             {
-              "begin": "\\b(?:(template)\\s+(\\.\\w+)|(deltemplate)\\s+(\\w+(?:\\.\\w+)+)(?=\\s|$))",
+              "begin": "\\b(?:(template)\\s+(\\.\\w+)|(deltemplate)\\s+(\\w+(?:\\.\\w+)+)(?=\\s|$|\\}))",
               "end": "}",
               "beginCaptures": {
                 "1": { "name": "storage.type.template.soy" },
@@ -438,6 +431,11 @@
                 },
                 { "include": "#invalid-attributes" }
               ]
+            },
+            { "include": "#template-params" },
+            {
+              "include": "text.html.basic",
+              "comment": "TODO: allow this to embed soy again, eg inside attrs"
             }
           ]
         }
@@ -574,6 +572,12 @@
           "begin": "/\\*",
           "end": "\\*/"
         }
+      ]
+    },
+    "value-expressions": {
+      "comment": "TODO: allow vars, fn calls, equations, etc",
+      "patterns": [
+        { "include": "#literals" }
       ]
     },
     "literals": {
